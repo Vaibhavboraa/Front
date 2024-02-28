@@ -1,0 +1,10 @@
+.form-control{
+    margin-bottom: 5px;
+    font-size: large;
+}
+.card{
+    border-shadow:5px 5px rgba(0,0,0,1);
+}
+.buttons{
+    padding: 20px;
+}
