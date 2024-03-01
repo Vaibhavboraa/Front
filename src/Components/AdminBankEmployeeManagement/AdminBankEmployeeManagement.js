@@ -1,27 +1,28 @@
+
 import React, { useState, useEffect } from 'react';
 import './AdminBankEmployeeManagement.css';
 
 function AdminBankEmployeeManagement() {
-    var [employees, setEmployees] = useState([]);
-    var [employeeById, setEmployeeById] = useState(null);
-    var [showData, setShowData] = useState(false);
-    var [employeeIdInput, setEmployeeIdInput] = useState('');
-    var [registrationData, setRegistrationData] = useState({
+    const [employees, setEmployees] = useState([]);
+    const [employeeById, setEmployeeById] = useState(null);
+    const [showData, setShowData] = useState(false);
+    const [employeeIdInput, setEmployeeIdInput] = useState('');
+    const [registrationData, setRegistrationData] = useState({
         email: '',
         password: '',
         name: '',
         position: '',
         phone: ''
     });
-    var [registrationResponse, setRegistrationResponse] = useState(null);
-    var [message, setMessage] = useState('');
-    var [message1, setMessage1] = useState('');
-    var [message2, setMessage2] = useState('');
-    var [message3, setMessage3] = useState('');
-    var [message4, setMessage4] = useState('');
+    const [registrationResponse, setRegistrationResponse] = useState(null);
+    const [message, setMessage] = useState('');
+    const [message1, setMessage1] = useState('');
+    const [message2, setMessage2] = useState('');
+    const [message3, setMessage3] = useState('');
+    const [message4, setMessage4] = useState('');
+    const [employeeIds, setEmployeeIds] = useState([]);
 
     useEffect(() => {
-
         fetch('http://localhost:5155/api/AdminBankEmployees/GetAllEmployees', {
             method: 'GET',
             headers: {
@@ -30,7 +31,27 @@ function AdminBankEmployeeManagement() {
         })
             .then(response => response.json())
             .then(data => {
+                console.log('Fetched Employees:', data);
+                setEmployees(data);
 
+
+                const employeeIds = data.map(employee => employee.employeeID);
+                setEmployeeIds(employeeIds);
+            })
+            .catch(error => {
+                console.error('Error fetching employees:', error);
+            });
+    }, []);
+
+    useEffect(() => {
+        fetch('http://localhost:5155/api/AdminBankEmployees/GetAllEmployees', {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
                 setEmployees(data);
             })
             .catch(error => {
@@ -38,43 +59,17 @@ function AdminBankEmployeeManagement() {
             });
     }, []);
 
-    var handleShowData = () => {
+    const handleShowData = () => {
         setShowData(true);
     };
-
 
     const handleClose = () => {
         setShowData(false);
     };
 
-    // var handleGetEmployeeById = () => {
-    //     // Fetch data for a specific employee by ID
-    //     fetch(`http://localhost:5155/api/AdminBankEmployees/get employee by id?employeeId=${employeeIdInput}`, {
-    //         method: 'GET',
-    //         headers: {
-    //             'accept': 'application/json'
-    //         }
-    //     })
-    //         .then(response => response.json())
-    //         .then(data => {
-
-    //             setEmployeeById(data);
-    //             setMessage('');
-    //             //
-
-    //         })
-    //         .catch(error => {
-    //             console.error('Error fetching employee by ID:', error);
-    //             setEmployeeById('');
-
-    //             setMessage('Employee Not Found');
-    //         });
-    // };
-
-    var handleGetEmployeeById = () => {
-
+    const handleGetEmployeeById = () => {
         if (employeeIdInput === '') {
-            setMessage('Employee ID cannot be empty');
+            setMessage('Please select an employee ID');
             return;
         }
 
@@ -102,76 +97,19 @@ function AdminBankEmployeeManagement() {
             });
     };
 
-
-
-    // var handleDeactivateEmployee = () => {
-    //     // Deactivate an employee by ID
-    //     fetch(`http://localhost:5155/api/AdminBankEmployees/Deactivate Employee?employeeId=${employeeIdInput}`, {
-    //         method: 'POST',
-    //         headers: {
-    //             'accept': 'application/json'
-    //         }
-    //     })
-    //         .then(response => response.json())
-    //         .then(data => {
-
-    //             console.log('Employee Deactivated:', data);
-    //         })
-    //         .catch(error => {
-    //             console.error('Error deactivating employee:', error);
-    //         });
-    // };
-
-
-    // var handleDeactivateEmployee = () => {
-
-
-    //     if (employeeIdInput === '') {
-    //         setMessage1('Employee ID cannot be empty');
-    //         return;
-    //     }
-    //     // Deactivate an employee by ID
-    //     fetch(`http://localhost:5155/api/AdminBankEmployees/Deactivate Employee?employeeId=${employeeIdInput}`, {
-    //         method: 'POST',
-    //         headers: {
-    //             'accept': 'application/json'
-    //         }
-    //     })
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error(`HTTP error! Status: ${response.status}`);
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(data => {
-    //             console.log('Employee Deactivated:', data);
-
-    //             setMessage1('Employee Deactivated Successfully');
-    //         })
-    //         .catch(error => {
-    //             console.error('Error deactivating employee:', error);
-
-    //             setMessage1('Employee with the given ID not found');
-    //         });
-    // };
-
-
-    var handleDeactivateEmployee = () => {
+    const handleDeactivateEmployee = () => {
         if (employeeIdInput === '') {
             setMessage1('Employee ID cannot be empty');
             return;
         }
 
-       
         const confirmed = window.confirm('Are you sure you want to deactivate this employee?');
 
         if (!confirmed) {
-           
             setMessage1('Deactivation canceled by user');
             return;
         }
 
-      
         fetch(`http://localhost:5155/api/AdminBankEmployees/Deactivate Employee?employeeId=${employeeIdInput}`, {
             method: 'POST',
             headers: {
@@ -194,71 +132,15 @@ function AdminBankEmployeeManagement() {
             });
     };
 
-
-    // var handleActivateEmployee = () => {
-    //     // Activate an employee by ID
-    //     fetch(`http://localhost:5155/api/AdminBankEmployees/Activate Employee?employeeId=${employeeIdInput}`, {
-    //         method: 'POST',
-    //         headers: {
-    //             'accept': 'application/json'
-    //         }
-    //     })
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             // Handle the response, if necessary
-    //             console.log('Employee Activated:', data);
-    //         })
-    //         .catch(error => {
-    //             console.error('Error activating employee:', error);
-    //         });
-    // };
-
-
-    // var handleActivateEmployee = () => {
-
-
-    //     if (employeeIdInput === '') {
-    //         setMessage2('Employee ID cannot be empty');
-    //         return;
-    //     }
-    //     // Activate an employee by ID
-    //     fetch(`http://localhost:5155/api/AdminBankEmployees/Activate Employee?employeeId=${employeeIdInput}`, {
-    //         method: 'POST',
-    //         headers: {
-    //             'accept': 'application/json'
-    //         }
-    //     })
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error(`HTTP error! Status: ${response.status}`);
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(data => {
-    //             console.log('Employee Activated:', data);
-
-    //             setMessage2('Employee Activated Successfully');
-    //         })
-    //         .catch(error => {
-    //             console.error('Error activating employee:', error);
-
-    //             setMessage2('Employee with the given ID not found');
-    //         });
-    // };
-
-
-
-    var handleActivateEmployee = () => {
+    const handleActivateEmployee = () => {
         if (employeeIdInput === '') {
             setMessage2('Employee ID cannot be empty');
             return;
         }
 
-       
         const confirmed = window.confirm('Are you sure you want to activate this employee?');
 
         if (!confirmed) {
-        
             setMessage2('Activation canceled by user');
             return;
         }
@@ -285,42 +167,19 @@ function AdminBankEmployeeManagement() {
             });
     };
 
-
-
-
-    var handleInputChange = (event) => {
+    const handleInputChange = (event) => {
         setEmployeeIdInput(event.target.value);
     };
 
-    var handleRegistrationInputChange = (event) => {
-        var { name, value } = event.target;
+    const handleRegistrationInputChange = (event) => {
+        const { name, value } = event.target;
         setRegistrationData({
             ...registrationData,
             [name]: value
         });
     };
 
-    // var handleRegisterEmployee = () => {
-    //     fetch('http://localhost:5155/api/AdminBankEmployees/Register Bank Employee', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Accept': 'application/json',
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(registrationData)
-    //     })
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             setRegistrationResponse(data);
-    //             console.log('Registration Response:', data);
-    //         })
-    //         .catch(error => {
-    //             console.error('Error registering employee:', error);
-    //         });
-    // };
-
-
-    var handleRegisterEmployee = () => {
+    const handleRegisterEmployee = () => {
         const requiredFields = ['email', 'password', 'name', 'position', 'phone'];
         const missingFields = requiredFields.filter(field => !registrationData[field]);
 
@@ -354,63 +213,7 @@ function AdminBankEmployeeManagement() {
             });
     };
 
-
-    // var handleRegisterEmployee = () => {
-    //     fetch('http://localhost:5155/api/AdminBankEmployees/Register Bank Employee', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Accept': 'application/json',
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(registrationData)
-    //     })
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error(`HTTP error! Status: ${response.status}`);
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(data => {
-    //             setRegistrationResponse(data);
-    //             console.log('Registration Response:', data);
-    //             setMessage4('Employee Registered Successfully');
-    //         })
-    //         .catch(error => {
-    //             console.error('Error registering employee:', error);
-    //             setMessage4('Error Registering Employee');
-    //         });
-    // };
-
-
-    // var handleUpdateEmployee = () => {
-    //     // Update an employee's position and phone by ID
-    //     fetch(`http://localhost:5155/api/AdminBankEmployees/Update Bank Employee?employeeId=${employeeIdInput}`, {
-    //         method: 'PUT',
-    //         headers: {
-    //             'accept': 'application/json',
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify({
-    //             position: registrationData.position,
-    //             phone: registrationData.phone
-    //         })
-    //     })
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             console.log('Employee Updated:', data);
-
-    //             handleGetEmployeeById();
-    //             setMessage3('Employee Updated')
-    //         })
-    //         .catch(error => {
-    //             console.error('Error updating employee:', error);
-    //             setMessage3('Error Updating Employee');
-    //         });
-    // };
-
-
-
-    var handleUpdateEmployee = () => {
+    const handleUpdateEmployee = () => {
         const requiredFields = ['position', 'phone'];
 
         const missingFields = requiredFields.filter(field => !registrationData[field]);
@@ -453,20 +256,14 @@ function AdminBankEmployeeManagement() {
             });
     };
 
-
-
-
-
     return (
         <div className="container">
             <h1 className='card-title cardHeader mt-4'>Employee Management</h1>
             <div className="row">
                 <div className="col-md-6">
-                    {/* Show All Employees */}
                     <div className="card mb-4">
                         <div className="card-body">
                             <h5 className="card-title">Show All Employees</h5>
-                            {/* <button className="btn" onClick={handleShowData}>Show All Employees</button> */}
                             <button
                                 className="btn card-title"
                                 onClick={handleShowData}
@@ -505,33 +302,32 @@ function AdminBankEmployeeManagement() {
                                     </ul>
                                 </div>
                             )}
-                            {/* Close button */}
-
                         </div>
                     </div>
-                    {/* Get Employee by ID */}
                     <div className="card mb-4">
                         <div className="card-body">
                             <h5 className="card-title">Get Employee by ID</h5>
                             <div>
-                                <label>Enter Employee ID: </label>
-                                <input type="text" value={employeeIdInput} onChange={handleInputChange} />
-                                {/* <button className="btn card-title" onClick={handleGetEmployeeById}>Get Employee by ID</button> */}
-                                <button
-                                    className="btn card-title"
-                                    onClick={handleGetEmployeeById}
-                                    style={{
-                                        fontSize: '18px',
-                                        padding: '3px 8px',
-                                    }}
-                                >
-                                    Get Employee by ID
-                                </button>
-                                {message && <p>{message}</p>}
-
-
-
+                                <label style={{ fontWeight: 'bold' }}>Select Employee ID: </label>
+                                <select value={employeeIdInput} onChange={handleInputChange}>
+                                    <option value="">Select an employee ID</option>
+                                    {employeeIds.map(id => (
+                                        <option key={id} value={id}>{id}</option>
+                                    ))}
+                                </select>
                             </div>
+                            <button
+                                className="btn card-title"
+                                onClick={handleGetEmployeeById}
+                                style={{
+                                    fontSize: '18px',
+                                    padding: '3px 8px',
+                                    marginTop: '20px',
+                                }}
+                            >
+                                Get Employee by ID
+                            </button>
+                            {message && <p>{message}</p>}
                             {employeeById && (
                                 <div>
                                     <h2>Employee by ID</h2>
@@ -541,58 +337,62 @@ function AdminBankEmployeeManagement() {
                                     <p>Phone: {employeeById.phone}</p>
                                 </div>
                             )}
-
                         </div>
                     </div>
-                    {/* Deactivate Employee */}
                     <div className="card mb-4">
                         <div className="card-body">
                             <h5 className="card-title">Deactivate Employee</h5>
                             <div>
-                                <label>Enter Employee ID: </label>
-                                <input type="text" value={employeeIdInput} onChange={handleInputChange} />
-                                {/* <button className="btn card-title " onClick={handleDeactivateEmployee}>Deactivate Employee</button> */}
-                                <button
-                                    className="btn card-title"
-                                    onClick={handleDeactivateEmployee}
-                                    style={{
-                                        fontSize: '18px',
-                                        padding: '3px 8px',
-                                    }}
-                                >
-                                    Deactivate Employee
-                                </button>
-                                {message1 && <p>{message1}</p>}
-
+                            <label style={{ fontWeight: 'bold' }}>Select Employee ID: </label>
+                                <select value={employeeIdInput} onChange={handleInputChange}>
+                                    <option value="">Select an employee ID</option>
+                                    {employeeIds.map(id => (
+                                        <option key={id} value={id}>{id}</option>
+                                    ))}
+                                </select>
                             </div>
+                            <button
+                                className="btn card-title"
+                                onClick={handleDeactivateEmployee}
+                                style={{
+                                    fontSize: '18px',
+                                    padding: '3px 8px',
+                                    marginTop: '20px',
+                                }}
+                            >
+                                Deactivate Employee
+                            </button>
+                            {message1 && <p>{message1}</p>}
                         </div>
                     </div>
-                    {/* Activate Employee */}
                     <div className="card mb-4">
                         <div className="card-body">
                             <h5 className="card-title">Activate Employee</h5>
                             <div>
-                                <label>Enter Employee ID: </label>
-                                <input type="text" value={employeeIdInput} onChange={handleInputChange} />
-                                {/* <button className="btn card-title " onClick={handleActivateEmployee}>Activate Employee</button> */}
-                                <button
-                                    className="btn card-title"
-                                    onClick={handleActivateEmployee}
-                                    style={{
-                                        fontSize: '14x',
-                                        padding: '3px 8px',
-                                    }}
-                                >
-                                    Activate Employee
-                                </button>
-                                {message2 && <p>{message2}</p>}
-
+                                <label style={{ fontWeight: 'bold' }}>Select Employee ID: </label>
+                                <select value={employeeIdInput} onChange={handleInputChange}>
+                                    <option value="">Select an employee ID</option>
+                                    {employeeIds.map(id => (
+                                        <option key={id} value={id}>{id}</option>
+                                    ))}
+                                </select>
                             </div>
+                            <button
+                                className="btn card-title"
+                                onClick={handleActivateEmployee}
+                                style={{
+                                    fontSize: '14x',
+                                    padding: '3px 8px',
+                                    marginTop: '20px',
+                                }}
+                            >
+                                Activate Employee
+                            </button>
+                            {message2 && <p>{message2}</p>}
                         </div>
                     </div>
                 </div>
                 <div className="col-md-6">
-                    {/* Register Employee */}
                     <div className="card mb-4">
                         <div className="card-body">
                             <h5 className="card-title">Register Employee</h5>
@@ -606,80 +406,76 @@ function AdminBankEmployeeManagement() {
                             </div>
                             <div>
                                 <label>Name</label>
-                                <input type="text" className="form-control" placeholder="Enter name" name="name" value={registrationData.name} onChange={handleRegistrationInputChange} />
+                                <input type="text" className="form-control" placeholder="Full Name" name="name" value={registrationData.name} onChange={handleRegistrationInputChange} />
                             </div>
                             <div>
                                 <label>Position</label>
-                                <input type="text" className="form-control" placeholder="Enter position" name="position" value={registrationData.position} onChange={handleRegistrationInputChange} />
+                                <input type="text" className="form-control" placeholder="Position" name="position" value={registrationData.position} onChange={handleRegistrationInputChange} />
                             </div>
                             <div>
                                 <label>Phone</label>
-                                <input type="text" className="form-control" placeholder="Enter phone number" name="phone" value={registrationData.phone} onChange={handleRegistrationInputChange} />
+                                <input type="text" className="form-control" placeholder="Phone Number" name="phone" value={registrationData.phone} onChange={handleRegistrationInputChange} />
                             </div>
-                            {/* <button className="btn card-title" onClick={handleRegisterEmployee}>
-                                Register Employee
-                            </button> */}
                             <button
                                 className="btn card-title"
                                 onClick={handleRegisterEmployee}
                                 style={{
                                     fontSize: '18px',
                                     padding: '3px 8px',
+                                    marginTop: '20px',
                                 }}
                             >
                                 Register Employee
                             </button>
                             {message4 && <p>{message4}</p>}
-
+                            {registrationResponse && (
+                                <div>
+                                    <h2>Registration Response</h2>
+                                    <p>ID: {registrationResponse.employeeID}</p>
+                                    <p>Name: {registrationResponse.name}</p>
+                                    <p>Email: {registrationResponse.email}</p>
+                                    <p>Position: {registrationResponse.position}</p>
+                                    <p>Phone: {registrationResponse.phone}</p>
+                                </div>
+                            )}
                         </div>
                     </div>
-                    {/* Update Employee */}
-                    <div className="card">
+                    <div className="card mb-4">
                         <div className="card-body">
                             <h5 className="card-title">Update Employee</h5>
                             <div>
-                                <label>Enter Employee ID: </label>
-                                <input type="text" value={employeeIdInput} onChange={handleInputChange} />
+                                <label style={{ fontWeight: 'bold' }}>Select Employee ID: </label>
+                                <select value={employeeIdInput} onChange={handleInputChange}>
+                                    <option value="">Select an employee ID</option>
+                                    {employeeIds.map(id => (
+                                        <option key={id} value={id}>{id}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div>
-                                <label>Position</label>
-                                <input type="text" className="form-control" placeholder="Enter position" name="position" value={registrationData.position} onChange={handleRegistrationInputChange} />
+                                <label>New Position</label>
+                                <input type="text" className="form-control" placeholder="New Position" name="position" value={registrationData.position} onChange={handleRegistrationInputChange} />
                             </div>
                             <div>
-                                <label>Phone</label>
-                                <input type="text" className="form-control" placeholder="Enter phone number" name="phone" value={registrationData.phone} onChange={handleRegistrationInputChange} />
+                                <label>New Phone</label>
+                                <input type="text" className="form-control" placeholder="New Phone Number" name="phone" value={registrationData.phone} onChange={handleRegistrationInputChange} />
                             </div>
-                            {/* <button className="btn card-title " onClick={handleUpdateEmployee}>
-                                Update Employee
-                            </button> */}
                             <button
                                 className="btn card-title"
                                 onClick={handleUpdateEmployee}
                                 style={{
                                     fontSize: '18px',
                                     padding: '3px 8px',
+                                    marginTop: '20px',
                                 }}
                             >
                                 Update Employee
                             </button>
                             {message3 && <p>{message3}</p>}
-
                         </div>
                     </div>
                 </div>
             </div>
-            {/* Registration Response */}
-            {registrationResponse && (
-                <div className="card mt-4">
-                    <div className="card-body">
-                        <h2 className='card-title'>Registration Response</h2>
-                        <p>Name: {registrationResponse.name}</p>
-                        <p>Email: {registrationResponse.email}</p>
-                        <p>Position: {registrationResponse.position}</p>
-                        <p>Phone: {registrationResponse.phone}</p>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
