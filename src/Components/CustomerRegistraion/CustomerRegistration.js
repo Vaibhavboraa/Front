@@ -34,7 +34,40 @@ function CustomerRegistration() {
         customer.gender = gender;
         console.log(customer);
 
+        const missingFeilds= [];
+        if (!email) missingFeilds.push("Email");
+        if (!password) missingFeilds.push("Password");
+        if (!name) missingFeilds.push('Name');
+        if (!dob) missingFeilds.push('DOB');
+        if (!age) missingFeilds.push('Age');
+        if(!phoneNumber) missingFeilds.push ('Phone Number');
+        if (!address) missingFeilds.push('Address');
+        if (!aadharNumber) missingFeilds.push('Aadhar Number');
+        if(!panNumber) missingFeilds.push('Pan Number');
+        if(!gender) missingFeilds.push('Gender');
+
+        if(missingFeilds.length>0)
+        {
+            const message=`Please fill in the following feilds : ${missingFeilds.join(" ,")}`;
+            setMissingFieldsMessage(message);
+            return;
+        }
         
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setRegistrationSuccess('Invalid email format');
+            return;
+        }
+    
+      
+        const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+        if (!passwordRegex.test(password)) {
+            setRegistrationSuccess('Password must be strong');
+            return;
+        }
+        setMissingFieldsMessage("");
+
+      
 
        
         
@@ -91,11 +124,28 @@ function CustomerRegistration() {
                                     <input className="form-control" type="text" value={aadharNumber} onChange={(e) => setAadharNumber(e.target.value)} />
                                     <label className="form-control">Pan Number</label>
                                     <input className="form-control" type="text" value={panNumber} onChange={(e) => setPanNumber(e.target.value)} />
-                                    <label className="form-control">Gender</label>
-                                    <input className="form-control" type="text" value={gender} onChange={(e) => setGender(e.target.value)} />
+                                    {/* <label className="form-control">Gender</label>
+                                    <input className="form-control" type="text" value={gender} onChange={(e) => setGender(e.target.value)} /> */}
+                                    <div>
+                                        <label htmlFor="gender" className="form-label">
+                                        Gender
+                                    </label>
+                                    <select
+                                        id="gender"
+                                        className="form-select"
+                                        value={gender}
+                                        onChange={(e) => setGender(e.target.value)}
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
                                     <div className="buttons">
                                         <button onClick={register} className="btn success">Register</button>
                                         <button className="btn cancel">Cancel</button>
+                                      {missingFeilds && <p>{missingFeilds}</p>}
                                         {registrationSuccess && <p>{registrationSuccess} </p>}
                                     </div>
                                 </div>

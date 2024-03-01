@@ -29,7 +29,7 @@ function BankEmployeeAccount() {
             .catch(error => {
                 console.error('Error fetching customer accounts:', error)
                 setCustomerAccounts('');
-                setMessage('No Customer found with this ID');
+                setMessage('No Account found with this ID');
             });
     };
 
@@ -88,7 +88,6 @@ function BankEmployeeAccount() {
 
 
 
-
     const approvePendingDeletion = (accountNumber) => {
         fetch(`http://localhost:5155/api/BankEmployeeAccount/ApproveAccountDeletion?accountNumber=${accountNumber}`, {
             method: 'POST',
@@ -126,9 +125,28 @@ function BankEmployeeAccount() {
     const handleClose = () => {
 
         setCustomers([]);
+
     };
 
-  
+    const confirmApproveCreation = (accountNumber) => {
+        const confirmation = window.confirm('Are you sure you want to approve the account creation?');
+
+        if (confirmation) {
+            approvePendingAccountCreation(accountNumber);
+        }
+    };
+
+    const confirmApproveDeletion = (accountNumber) => {
+        const confirmation = window.confirm('Are you sure you want to approve the account deletion?');
+
+        if (confirmation) {
+            approvePendingDeletion(accountNumber);
+        }
+    };
+
+
+
+
 
     return (
         <div className="container mt-4">
@@ -188,8 +206,8 @@ function BankEmployeeAccount() {
                             >
                                 Get Customer Accounts
                             </button>
-                         
-                            
+
+
 
                             {
                                 message && <p> {message}</p>
@@ -277,8 +295,15 @@ function BankEmployeeAccount() {
                                         <p>Status: {account.status}</p>
                                         <p>IFSC: {account.ifsc}</p>
                                         {/* <button className="btn b card-title" onClick={() => approvePendingDeletion(account.accountNumber)}>Approve Deletion</button> */}
-                                        <button
+                                        {/* <button
                                             onClick={() => approvePendingDeletion(account.accountNumber)}
+                                            className="btn b card-title"
+                                            style={{ fontSize: '14px', padding: '8px 12px', marginRight: '5px' }}
+                                        >
+                                            Approve Deletion
+                                        </button> */}
+                                        <button
+                                            onClick={() => confirmApproveDeletion(account.accountNumber)}
                                             className="btn b card-title"
                                             style={{ fontSize: '14px', padding: '8px 12px', marginRight: '5px' }}
                                         >
@@ -317,8 +342,16 @@ function BankEmployeeAccount() {
                                         <p>Status: {account.status}</p>
                                         <p>IFSC: {account.ifsc}</p>
                                         {/* <button className="btn b card-title" onClick={() => approvePendingAccountCreation(account.accountNumber)}>Approve Creation</button> */}
-                                        <button
+                                        {/* <button
                                             onClick={() => approvePendingAccountCreation(account.accountNumber)}
+                                            className="btn b card-title"
+                                            style={{ fontSize: '14px', padding: '8px 12px', marginRight: '5px' }}
+                                        >
+                                            Approve Creation
+                                        </button> */}
+
+                                        <button
+                                            onClick={() => confirmApproveCreation(account.accountNumber)}
                                             className="btn b card-title"
                                             style={{ fontSize: '14px', padding: '8px 12px', marginRight: '5px' }}
                                         >
@@ -340,3 +373,5 @@ function BankEmployeeAccount() {
 }
 
 export default BankEmployeeAccount;
+
+

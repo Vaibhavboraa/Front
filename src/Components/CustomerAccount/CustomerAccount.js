@@ -71,6 +71,19 @@ function CustomerAccount() {
     };
 
     const handleCloseAccount = () => {
+        //
+        if(accountNumberToClose==="")
+        {
+            setCloseAccountStatus("Account Number Cannot be empty");
+            return;
+        }
+        const confirmed = window.confirm('Are you sure you want to close this account?');
+
+        if (!confirmed) {
+            setCloseAccountStatus('Account closing canceled by user.');
+            return;
+        }
+        //
         fetch(`http://localhost:5155/api/CustomerAccount/Close%20Account?accountNumber=${accountNumberToClose}`, {
             method: 'POST',
             headers: {
@@ -93,7 +106,7 @@ function CustomerAccount() {
     };
 
     const handleGetAccountDetails = () => {
-        fetch(`http://localhost:5155/api/CustomerAccount/${accountNumber}/${customerId}`, {
+        fetch(`http://localhost:5155/api/CustomerAccount/GetAccountDetailsByAccountNumber?accountNumber=${accountNumber}`, {
             method: 'GET',
             headers: {
                 'accept': 'application/json',
@@ -146,7 +159,8 @@ function CustomerAccount() {
                                 onChange={(e) => setIFSC(e.target.value)} 
                             />
                             <br />
-                            <button className="btn buttons" onClick={handleOpenAccount}>Open Account</button>
+                            <button className="btn buttons card-title"  style={{fontSize: '16px', padding:'10px 15px'}}
+                            onClick={handleOpenAccount}>Open Account</button>
                             <p>{openAccountStatus}</p>
                             <p>{openAccountError}</p>
                         </div>
@@ -164,7 +178,9 @@ function CustomerAccount() {
                                 onChange={(e) => setAccountNumberToClose(e.target.value)} 
                             />
                             <br />
-                            <button className="btn buttons" onClick={handleCloseAccount}>Close Account</button>
+                            <button className="btn buttons card-title"
+                             style={{fontSize: '16px', padding:'10px 15px'}}
+                              onClick={handleCloseAccount}>Close Account</button>
                             <p>{closeAccountStatus}</p>
                             <p>{closeAccountError}</p>
                         </div>
@@ -182,7 +198,8 @@ function CustomerAccount() {
                                 onChange={(e) => setAccountNumber(e.target.value)} 
                             />
                             <br />
-                            <button className="btn buttons" onClick={handleGetAccountDetails}>Get Account Details</button>
+                            <button className="btn buttons card-title"  style={{fontSize: '16px', padding:'10px 15px'}}
+                            onClick={handleGetAccountDetails}>Get Account Details</button>
                             <br />
                             <p>{getAccountDetailsError}</p>
                             {accountDetails && (

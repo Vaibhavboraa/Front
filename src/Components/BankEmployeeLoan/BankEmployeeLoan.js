@@ -14,6 +14,7 @@ function BankEmployeeLoan() {
     const [message1, setMessage1] = useState('');
     const [disburseMessage, setDisburseMessage] = useState('');
 
+
     useEffect(() => {
         fetchAllLoans();
     }, []);
@@ -108,6 +109,7 @@ function BankEmployeeLoan() {
                 })
                 .then(data => {
                     setDisburseMessage('Loan disbursed successfully');
+                  
                 })
                 .catch(error => {
                     setDisburseMessage('Error disbursing loan');

@@ -11,6 +11,9 @@ function Customer() {
     const [phone, setPhone] = useState('');
     const [name, setName] = useState('');
     const [address, setAddress] = useState(''); 
+    const[message1,setMessage1]=useState('');
+    const[message2,setMessage2]=useState('');
+    const[message3,setMessage3]=useState('');
     const token = sessionStorage.getItem('token');
 
     useEffect(() => {
@@ -19,6 +22,7 @@ function Customer() {
     }, []);
 
     useEffect(() => {
+
         if (email) {
             fetch(`http://localhost:5155/api/Customer/GetCustomerInfoByEmail?email=${encodeURIComponent(email)}`)
                 .then(response => {
@@ -40,7 +44,17 @@ function Customer() {
 
     const handleResetPassword = () => {
         if (newPassword !== confirmPassword) {
-            setMessage('New Password and Confirm Password must match.');
+            setMessage1('New Password and Confirm Password must match.');
+            return;
+        }
+        if(confirmPassword==='')
+        {
+            setMessage1('Confirm Password cannot be empty');
+            return;
+        }
+        if(newPassword==='')
+        {
+            setMessage1('Confirm Password cannot be empty');
             return;
         }
         fetch(`http://localhost:5155/api/Customer/UpdatePassword?email=${encodeURIComponent(email)}&newPassword=${encodeURIComponent(newPassword)}`, {
@@ -53,7 +67,7 @@ function Customer() {
         })
             .then(response => response.text())
             .then(data => {
-                setMessage(data);
+                setMessage1(data);
                 setNewPassword('');
                 setConfirmPassword('');
             })
@@ -61,6 +75,12 @@ function Customer() {
     };
 
     const handleChangePhoneNumber = () => {
+
+        if(phone==='')
+        {
+            setMessage('Phone Number cannot be empty');
+            return;
+        }
         if (customerInfo) {
             const customerId = customerInfo.customerID;
             fetch(`http://localhost:5155/api/Customer/ChangePhoneNumber?id=${encodeURIComponent(customerId)}&phone=${encodeURIComponent(phone)}`, {
@@ -87,10 +107,17 @@ function Customer() {
                     setMessage('Phone Number changed successfully.');
                 })
                 .catch(error => console.error('Error changing phone number:', error));
+               // setCustomerInfo('');
+                setMessage("Error Updating phone number");
         }
     };
     
     const handleChangeName = () => {
+        if(name==='')
+        {
+            setMessage2('name cannot be empty');
+            return;
+        }
         if (customerInfo) {
             const customerId = customerInfo.customerID;
             fetch(`http://localhost:5155/api/Customer/ChangeName?id=${encodeURIComponent(customerId)}&name=${encodeURIComponent(name)}`, {
@@ -114,12 +141,20 @@ function Customer() {
                         ...prevCustomerInfo,
                         name: data.name 
                     }));
+                    setMessage2('Name Changed Successfully');
                 })
                 .catch(error => console.error('Error changing name:', error));
         }
     };
     
     const handleChangeAddress = () => {
+ 
+        if(address==='')
+        {
+            setMessage3('Address cannot be empty');
+            return;
+        }
+
         if (customerInfo) {
             const customerId = customerInfo.customerID;
             fetch(`http://localhost:5155/api/Customer/ChangeAddress?id=${encodeURIComponent(customerId)}&address=${encodeURIComponent(address)}`, {
@@ -142,7 +177,9 @@ function Customer() {
                     setCustomerInfo(prevCustomerInfo => ({
                         ...prevCustomerInfo,
                         address: data.address 
+                       
                     }));
+                    setMessage3('Address changed Successfully');
                 })
                 .catch(error => console.error('Error changing address:', error));
         }
@@ -194,8 +231,9 @@ function Customer() {
                                     onChange={e => setConfirmPassword(e.target.value)}
                                 />
                             </div>
-                            <button onClick={handleResetPassword} className="btn buttons">Reset Password</button>
-                            {message && <p>{message}</p>}
+                            <button onClick={handleResetPassword} className="btn buttons card-title"
+                             style={{fontSize: '16px', padding:'10px 15px'}}>Reset Password</button>
+                            {message1 && <p>{message1}</p>}
                         </div>
                     </div>
                 </div>
@@ -212,7 +250,8 @@ function Customer() {
                                     onChange={e => setPhone(e.target.value)}
                                 />
                             </div>
-                            <button onClick={handleChangePhoneNumber} className="btn buttons">Change Phone Number</button>
+                            <button onClick={handleChangePhoneNumber} className="btn buttons card-title"
+                             style={{fontSize: '16px', padding:'10px 15px'}}>Change Phone Number</button>
                             {message && <p>{message}</p>}
                         </div>
                     </div>
@@ -228,7 +267,10 @@ function Customer() {
                                     onChange={e => setName(e.target.value)}
                                 />
                             </div>
-                            <button onClick={handleChangeName} className="btn buttons">Change Name</button>
+                            <button onClick={handleChangeName} className="btn buttons card-title" 
+                            style={{fontSize: '16px', padding:'10px 15px'}}
+                            >Change Name</button>
+                            {message2 && <p>{message2}</p>}
                         </div>
                     </div>
                     <div className="card mt-3">
@@ -243,7 +285,9 @@ function Customer() {
                                     onChange={e => setAddress(e.target.value)}
                                 />
                             </div>
-                            <button onClick={handleChangeAddress} className="btn buttons">Change Address</button>
+                            <button onClick={handleChangeAddress} className="btn buttons card-title" 
+                             style={{fontSize: '16px', padding:'10px 15px'}}>Change Address</button>
+                              {message3 && <p>{message3}</p>}
                         </div>
                     </div>
                 </div>
@@ -520,7 +564,7 @@ export default Customer;
 
 
 
-//mine
+
 
 
 

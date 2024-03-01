@@ -36,8 +36,6 @@ function BankEmployeeLogin() {
 
 
   
-
-        // Fetch to login endpoint
         fetch("http://localhost:5155/api/BankEmployeeLogin/login", requestOptions)
             .then(res => res.json())
             .then(res => {
@@ -49,6 +47,7 @@ function BankEmployeeLogin() {
 
 
                     sessionStorage.setItem("userType", res.userType);
+                    alert("Login success-" + res.email);
                     //
                     navigate('/bankemployee/account');
                     setLoggedin(true);

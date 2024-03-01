@@ -42,7 +42,7 @@ function AdminBankEmployeeManagement() {
         setShowData(true);
     };
 
-    
+
     const handleClose = () => {
         setShowData(false);
     };
@@ -123,14 +123,55 @@ function AdminBankEmployeeManagement() {
     // };
 
 
+    // var handleDeactivateEmployee = () => {
+
+
+    //     if (employeeIdInput === '') {
+    //         setMessage1('Employee ID cannot be empty');
+    //         return;
+    //     }
+    //     // Deactivate an employee by ID
+    //     fetch(`http://localhost:5155/api/AdminBankEmployees/Deactivate Employee?employeeId=${employeeIdInput}`, {
+    //         method: 'POST',
+    //         headers: {
+    //             'accept': 'application/json'
+    //         }
+    //     })
+    //         .then(response => {
+    //             if (!response.ok) {
+    //                 throw new Error(`HTTP error! Status: ${response.status}`);
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             console.log('Employee Deactivated:', data);
+
+    //             setMessage1('Employee Deactivated Successfully');
+    //         })
+    //         .catch(error => {
+    //             console.error('Error deactivating employee:', error);
+
+    //             setMessage1('Employee with the given ID not found');
+    //         });
+    // };
+
+
     var handleDeactivateEmployee = () => {
-
-
         if (employeeIdInput === '') {
             setMessage1('Employee ID cannot be empty');
             return;
         }
-        // Deactivate an employee by ID
+
+       
+        const confirmed = window.confirm('Are you sure you want to deactivate this employee?');
+
+        if (!confirmed) {
+           
+            setMessage1('Deactivation canceled by user');
+            return;
+        }
+
+      
         fetch(`http://localhost:5155/api/AdminBankEmployees/Deactivate Employee?employeeId=${employeeIdInput}`, {
             method: 'POST',
             headers: {
@@ -145,12 +186,10 @@ function AdminBankEmployeeManagement() {
             })
             .then(data => {
                 console.log('Employee Deactivated:', data);
-
                 setMessage1('Employee Deactivated Successfully');
             })
             .catch(error => {
                 console.error('Error deactivating employee:', error);
-
                 setMessage1('Employee with the given ID not found');
             });
     };
@@ -175,14 +214,55 @@ function AdminBankEmployeeManagement() {
     // };
 
 
+    // var handleActivateEmployee = () => {
+
+
+    //     if (employeeIdInput === '') {
+    //         setMessage2('Employee ID cannot be empty');
+    //         return;
+    //     }
+    //     // Activate an employee by ID
+    //     fetch(`http://localhost:5155/api/AdminBankEmployees/Activate Employee?employeeId=${employeeIdInput}`, {
+    //         method: 'POST',
+    //         headers: {
+    //             'accept': 'application/json'
+    //         }
+    //     })
+    //         .then(response => {
+    //             if (!response.ok) {
+    //                 throw new Error(`HTTP error! Status: ${response.status}`);
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             console.log('Employee Activated:', data);
+
+    //             setMessage2('Employee Activated Successfully');
+    //         })
+    //         .catch(error => {
+    //             console.error('Error activating employee:', error);
+
+    //             setMessage2('Employee with the given ID not found');
+    //         });
+    // };
+
+
+
     var handleActivateEmployee = () => {
-
-
         if (employeeIdInput === '') {
             setMessage2('Employee ID cannot be empty');
             return;
         }
-        // Activate an employee by ID
+
+       
+        const confirmed = window.confirm('Are you sure you want to activate this employee?');
+
+        if (!confirmed) {
+        
+            setMessage2('Activation canceled by user');
+            return;
+        }
+
         fetch(`http://localhost:5155/api/AdminBankEmployees/Activate Employee?employeeId=${employeeIdInput}`, {
             method: 'POST',
             headers: {
@@ -197,15 +277,15 @@ function AdminBankEmployeeManagement() {
             })
             .then(data => {
                 console.log('Employee Activated:', data);
-
                 setMessage2('Employee Activated Successfully');
             })
             .catch(error => {
                 console.error('Error activating employee:', error);
-
                 setMessage2('Employee with the given ID not found');
             });
     };
+
+
 
 
     var handleInputChange = (event) => {
@@ -499,7 +579,7 @@ function AdminBankEmployeeManagement() {
                                     className="btn card-title"
                                     onClick={handleActivateEmployee}
                                     style={{
-                                        fontSize: '16x',
+                                        fontSize: '14x',
                                         padding: '3px 8px',
                                     }}
                                 >

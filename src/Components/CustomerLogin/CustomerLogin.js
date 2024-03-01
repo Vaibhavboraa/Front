@@ -91,11 +91,13 @@ function CustomerLogin() {
                                         {/* {errorMessage && <p className="text-danger">{errorMessage}</p>} */}
                                         <div className='buttons'>
                                             <button onClick={login} className="btn success ">Login</button>
+
                                          
 
                                             <button className="btn  cancel">Cancel</button>
 
                                         </div>
+                                        abcd
                                     </form>
                                 </div>
                             </div>
