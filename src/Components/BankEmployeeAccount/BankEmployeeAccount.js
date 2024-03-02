@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect } from 'react';
 import '../BankEmployeeAccount/BankEmployeeAccount.css';
 
@@ -11,6 +9,7 @@ function BankEmployeeAccount() {
     const [messages, setMessages] = useState('');
     const [pendingDeletionAccounts, setPendingDeletionAccounts] = useState([]);
     const [pendingAccounts, setPendingAccounts] = useState([]);
+    const token= sessionStorage.getItem('token');
 
     useEffect(() => {
         getAllCustomers();
@@ -42,13 +41,33 @@ function BankEmployeeAccount() {
                 setMessages('No Accounts for this ID');
             });
     };
+   
+    
 
+    // const getAllCustomers = () => {
+    //     fetch('http://localhost:5155/api/BankEmployeeAccount/GetAllCustomer')
+    //         .then(response => response.json())
+    //         .then(data => setCustomers(data))
+    //         .catch(error => console.error('Error fetching customers:', error));
+    // };
     const getAllCustomers = () => {
-        fetch('http://localhost:5155/api/BankEmployeeAccount/GetAllCustomer')
-            .then(response => response.json())
-            .then(data => setCustomers(data))
-            .catch(error => console.error('Error fetching customers:', error));
+        fetch('http://localhost:5155/api/BankEmployeeAccount/GetAllCustomer', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => setCustomers(data))
+        .catch(error => console.error('Error fetching customers:', error));
     };
+    
 
     const getPendingDeletionAccounts = () => {
         fetch('http://localhost:5155/api/BankEmployeeAccount/GetPendingDeletion')

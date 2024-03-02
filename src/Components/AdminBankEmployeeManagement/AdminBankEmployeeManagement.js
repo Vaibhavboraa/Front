@@ -428,16 +428,7 @@ function AdminBankEmployeeManagement() {
                                 Register Employee
                             </button>
                             {message4 && <p>{message4}</p>}
-                            {registrationResponse && (
-                                <div>
-                                    <h2>Registration Response</h2>
-                                    <p>ID: {registrationResponse.employeeID}</p>
-                                    <p>Name: {registrationResponse.name}</p>
-                                    <p>Email: {registrationResponse.email}</p>
-                                    <p>Position: {registrationResponse.position}</p>
-                                    <p>Phone: {registrationResponse.phone}</p>
-                                </div>
-                            )}
+                           
                         </div>
                     </div>
                     <div className="card mb-4">

@@ -28,6 +28,8 @@ import PrivateRouteBankEmployee from './Components/PrivateRoutes/PrivateRouteBan
 import PrivateRouteAdmin from './Components/PrivateRoutes/PrivateRouteAdmin';
 import { AuthProvider } from './AuthContext';
 import BankEmployeeRegistration from './Components/BankEmployeeRegistration/BankEmployeeRegistration';
+import ForgotPassword from './Components/ForgotPassword/ForgotPassword';
+import Navigation from './Components/Navigation/Navigation';
 
 function App() {
   return (
@@ -107,7 +109,8 @@ function App() {
             <Route path="/customer" element={<><PrivateRoute/><CustomerNav /><Customer /></>} />
             {/* <Route path="*" element={<><Error/></>}/> */}
 
-            {/* <Route path='/forgotpassword' element={<><Navigation/><ForgotPassword/></>}/> */}
+            <Route path='/forgotpassword' element={<><Navigation/><ForgotPassword/></>}/>
+            {/* <Route path="/forgotpassword" element={<ForgotPassword />} /> */}
             
             {/* <Route path='/about' element={<><CustomerRegistraionNav/><About/></>}/>
             <Route path='/beneficiary' element={<><PrivateRoute/><CustomerNav/><CustomerBeneficiary/></>}/> */}

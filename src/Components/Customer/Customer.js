@@ -15,6 +15,7 @@ function Customer() {
     const[message2,setMessage2]=useState('');
     const[message3,setMessage3]=useState('');
     const token = sessionStorage.getItem('token');
+    
 
     useEffect(() => {
         const emailFromStorage = sessionStorage.getItem('email');
