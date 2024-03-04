@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function AdminLogin() {
-    // State variables
+   
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loggedin, setLoggedin] = useState(false);
 
-    //
+  
     var navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState("");
 
-    // Function to handle login
+   
     const login = (e) => {
         e.preventDefault();
 
@@ -99,6 +100,27 @@ function AdminLogin() {
                                             <button className="btn cancel">Cancel</button>
                                         </div>
                                     </form>
+                                    <div className="text-center mt-3">
+                                        <Link
+                                            to="/admin/forgotpassword"
+                                            style={{
+                                                textDecoration: 'none',
+                                                color: 'white',
+                                                fontWeight: 'bold',
+                                                fontSize: '12px',
+                                                padding: '10px 10px',
+                                                border: '2px solid white',
+                                                borderRadius: '5px',
+                                                transition: 'background-color 0.3s ease',
+                                                display: 'inline-block',
+                                                cursor: 'pointer',
+                                                backgroundColor: 'black',
+                                                marginTop: '-40px',
+                                            }}
+                                        >
+                                            Forgot Password
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -99,29 +99,29 @@ function CustomerLogin() {
                                         <button className="btn  cancel">Cancel</button>
 
                                     </div>
-                                    <div className="text-center mt-3">
-            
-                <Link
-                  to="/forgotpassword"
-                  style={{
-                    textDecoration: 'none',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    fontSize: '12px',
-                    padding: '10px 10px',
-                    border: '2px solid white',
-                    borderRadius: '5px',
-                    transition: 'background-color 0.3s ease',
-                    display: 'inline-block',
-                    cursor: 'pointer',
-                    backgroundColor: 'black',
-                    marginTop: '-40px',
-                  }}
-                 
-                >
-                  Forgot Password
-                </Link>
-              </div>
+                                         <div className="text-center mt-3">
+
+                                        <Link
+                                            to="/forgotpassword"
+                                            style={{
+                                                textDecoration: 'none',
+                                                color: 'white',
+                                                fontWeight: 'bold',
+                                                fontSize: '12px',
+                                                padding: '10px 10px',
+                                                border: '2px solid white',
+                                                borderRadius: '5px',
+                                                transition: 'background-color 0.3s ease',
+                                                display: 'inline-block',
+                                                cursor: 'pointer',
+                                                backgroundColor: 'black',
+                                                marginTop: '-40px',
+                                            }}
+
+                                        >
+                                            Forgot Password
+                                        </Link>
+                                    </div>
 
                                 </form>
                             </div>

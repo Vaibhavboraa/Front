@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from 'react-bootstrap';
 import './style.css';
@@ -13,7 +12,11 @@ function AdminCustomerManagement() {
     var [updateNameResponse, setUpdateNameResponse] = useState("");
     const [message, setMessage] = useState('');
     const [message1, setMessage1] = useState('');
+    const [message2, setMessage2] = useState('');
     const [customerIdsDropdown, setCustomerIdsDropdown] = useState([]);
+    const token = sessionStorage.getItem('token');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
 
     const [newCustomerData, setNewCustomerData] = useState({
         email: "",
@@ -48,7 +51,13 @@ function AdminCustomerManagement() {
     }, []);
 
     const getAllCustomers = () => {
-        fetch("http://localhost:5155/api/AdministratorCustomer/GetAllCustomers")
+        fetch("http://localhost:5155/api/AdministratorCustomer/GetAllCustomers", {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        })
             .then(res => res.json())
             .then(res => {
                 setCustomers(res);
@@ -62,7 +71,13 @@ function AdminCustomerManagement() {
             return;
         }
 
-        fetch(`http://localhost:5155/api/AdministratorCustomer/GetCustomerById?id=${customerIdInput}`)
+        fetch(`http://localhost:5155/api/AdministratorCustomer/GetCustomerById?id=${customerIdInput}`, {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        })
             .then(res => res.json())
             .then(customer => {
                 console.log(customer);
@@ -78,42 +93,95 @@ function AdminCustomerManagement() {
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
-        setNewCustomerData({ ...newCustomerData, [name]: value });
+
+        if (name === 'dob') {
+
+            const birthDate = new Date(value);
+            const today = new Date();
+            const calculatedAge = today.getFullYear() - birthDate.getFullYear();
+
+            if (isNaN(calculatedAge)) {
+
+                setNewCustomerData({
+                    ...newCustomerData,
+                    age: '',
+                    [name]: value,
+                });
+            } else {
+
+                setNewCustomerData({
+                    ...newCustomerData,
+                    age: calculatedAge,
+                    [name]: value,
+                });
+            }
+        } else {
+
+            setNewCustomerData({
+                ...newCustomerData,
+                [name]: value,
+            });
+        }
     };
 
+
+    useEffect(() => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (newCustomerData.email && !emailRegex.test(newCustomerData.email)) {
+            setEmailError('Please enter a valid email address');
+        } else {
+            setEmailError('');
+        }
+    }, [newCustomerData.email]);
+
+   
+    useEffect(() => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (newCustomerData.password && !passwordRegex.test(newCustomerData.password)) {
+            setPasswordError('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character');
+        } else {
+            setPasswordError('');
+        }
+    }, [newCustomerData.password]);
+
     const registerCustomer = () => {
-        const requiredFields = ['email', 'password', 'name', 'dob', 'phoneNumber', 'address'];
+        const requiredFields = ['email', 'password', 'name', 'dob', 'phoneNumber', 'address', 'panNumber', 'gender', 'aadharNumber'];
         const missingFields = requiredFields.filter(field => !newCustomerData[field]);
 
         if (missingFields.length > 0) {
             setMessage1(`Please fill in the following fields: ${missingFields.join(', ')}`);
             return;
         }
-
+     
         fetch("http://localhost:5155/api/AdministratorCustomer/RegisterCustomer", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'accept': 'text/plain'
+                'accept': 'text/plain',
+                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify(newCustomerData)
         })
             .then(res => {
                 if (res.ok) {
-                    return res.text();
+                    // return res.text();
+                   
+                    //setMessage1('Customer registered successfully');
+                    alert('Customer registered successfully');
                 } else {
-                    throw new Error(`Failed to register customer. Status: ${res.status}`);
+                    // throw new Error(`Failed to register customer. Status: ${res.status}`);
+                    alert('Email already exists');
                 }
             })
-            .then(response => {
-                console.log(response);
-                setMessage1('Customer registered successfully');
-                handleCloseRegisterModal();
-            })
-            .catch(error => {
-                console.error('Error registering customer:', error.message);
-                setMessage1('Error registering customer');
-            });
+        //  .then(response => {
+        //     console.log(response);
+        //  setMessage1('Customer registered successfully');
+        // handleCloseRegisterModal();
+        //  })
+        // .catch(error => {
+        //     console.error('Error registering customer:', error.message);
+        //     setMessage1('Error registering customer');
+        // });
     };
 
     const handleDropdownChange = (event) => {
@@ -132,7 +200,8 @@ function AdminCustomerManagement() {
             fetch(`http://localhost:5155/api/AdministratorCustomer/DeactivateCustomer?customerId=${customerIdInput}`, {
                 method: 'PUT',
                 headers: {
-                    'accept': 'text/plain'
+                    'accept': 'text/plain',
+                    'Authorization': 'Bearer ' + token
                 }
             })
                 .then(res => res.text())
@@ -157,7 +226,8 @@ function AdminCustomerManagement() {
             fetch(`http://localhost:5155/api/AdministratorCustomer/ActivateCustomer?customerId=${customerIdInput}`, {
                 method: 'PUT',
                 headers: {
-                    'accept': 'text/plain'
+                    'accept': 'text/plain',
+                    'Authorization': 'Bearer ' + token
                 }
             })
                 .then(res => res.text())
@@ -191,6 +261,7 @@ function AdminCustomerManagement() {
             headers: {
                 'accept': 'text/plain',
                 'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify({
                 "name": newCustomerData.name,
@@ -207,7 +278,7 @@ function AdminCustomerManagement() {
 
     const updateCustomerContact = () => {
         if (customerIdInput === '' || !newCustomerData.phoneNumber || !newCustomerData.address || !newCustomerData.aadharNumber) {
-            setMessage('Please Fill All the Fields ');
+            setMessage2('Please Fill All the Fields ');
             return;
         }
 
@@ -216,6 +287,7 @@ function AdminCustomerManagement() {
             headers: {
                 'Content-Type': 'application/json',
                 'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify({
                 phoneNumber: newCustomerData.phoneNumber,
@@ -232,13 +304,15 @@ function AdminCustomerManagement() {
             })
             .then(response => {
                 console.log(response);
-                setMessage('Customer contact information updated successfully');
+                setMessage2('Customer contact information updated successfully');
             })
             .catch(error => {
                 console.error('Error updating customer contact:', error.message);
-                setMessage('Error updating customer contact');
+                setMessage2('Error updating customer contact');
             });
     };
+
+
 
     return (
         <div>
@@ -258,7 +332,7 @@ function AdminCustomerManagement() {
                             <div className="card-body">
                                 <h5 className="card-title cardHeader">Customer Registration</h5>
                                 <button onClick={handleShowRegisterModal}>Register Customer</button>
-                                {message1 && <p>{message1}</p>}
+                                {/* {message1 && <p>{message1}</p>} */}
                             </div>
                         </div>
                     </div>
@@ -449,7 +523,7 @@ function AdminCustomerManagement() {
                                 />
                                 <br />
                                 <button onClick={updateCustomerContact}>Update Customer Contact</button>
-                                {message && <p>{message}</p>}
+                                {message2 && <p>{message2}</p>}
                             </div>
                         </div>
                     </div>
@@ -471,6 +545,7 @@ function AdminCustomerManagement() {
                             <p>Phone: {customer.phoneNumber}</p>
                             <p>Address: {customer.address}</p>
                             <hr />
+                           
                         </div>
                     ))}
                 </Modal.Body>
@@ -478,6 +553,7 @@ function AdminCustomerManagement() {
                     <Button variant="secondary" onClick={handleCloseModal}>
                         Close
                     </Button>
+                 
                 </Modal.Footer>
             </Modal>
 
@@ -485,11 +561,14 @@ function AdminCustomerManagement() {
                 <Modal.Header closeButton>
                     <Modal.Title>Register New Customer</Modal.Title>
                 </Modal.Header>
+              
                 <Modal.Body>
                     <label>Email:</label>
                     <input type="email" name="email" value={newCustomerData.email} onChange={handleInputChange} className="value" />
+                    {emailError && <div style={{ color: 'red', marginTop: '5px' }}>{emailError}</div>}
                     <label>Password:</label>
                     <input type="password" name="password" value={newCustomerData.password} onChange={handleInputChange} className="value" />
+                    {passwordError && <div style={{ color: 'red', marginTop: '5px' }}>{passwordError}</div>}
                     <label>Name:</label>
                     <input type="text" name="name" value={newCustomerData.name} onChange={handleInputChange} className="value" />
                     <label>DOB:</label>
@@ -505,7 +584,20 @@ function AdminCustomerManagement() {
                     <label>PAN Number:</label>
                     <input type="text" name="panNumber" value={newCustomerData.panNumber} onChange={handleInputChange} className="value" />
                     <label>Gender:</label>
-                    <input type="text" name="gender" value={newCustomerData.gender} onChange={handleInputChange} className="value" />
+                    <br/>
+                    
+                    <select
+                        name="gender"
+                        value={newCustomerData.gender}
+                        onChange={handleInputChange}
+                        className="value"
+                    >
+                        <option value="" disabled>Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                   
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseRegisterModal}>
@@ -514,6 +606,7 @@ function AdminCustomerManagement() {
                     <Button variant="primary" onClick={registerCustomer}>
                         Register
                     </Button>
+                    {message1 && <p>{message1}</p>}
                 </Modal.Footer>
             </Modal>
 
@@ -522,3 +615,4 @@ function AdminCustomerManagement() {
 }
 
 export default AdminCustomerManagement;
+

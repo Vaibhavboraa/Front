@@ -30,6 +30,8 @@ import { AuthProvider } from './AuthContext';
 import BankEmployeeRegistration from './Components/BankEmployeeRegistration/BankEmployeeRegistration';
 import ForgotPassword from './Components/ForgotPassword/ForgotPassword';
 import Navigation from './Components/Navigation/Navigation';
+import ForgotPasswordEmployee from './Components/ForgotPassword/ForgotPasswordEmployee';
+import ForgotPasswordAdmin from './Components/ForgotPassword/ForgotPasswordAdmin';
 
 function App() {
   return (
@@ -110,6 +112,8 @@ function App() {
             {/* <Route path="*" element={<><Error/></>}/> */}
 
             <Route path='/forgotpassword' element={<><Navigation/><ForgotPassword/></>}/>
+            <Route path='/bankemployee/forgotpassword' element={<><Navigation/><ForgotPasswordEmployee/></>}/>
+            <Route path='/admin/forgotpassword' element={<><Navigation/><ForgotPasswordAdmin/></>}/>
             {/* <Route path="/forgotpassword" element={<ForgotPassword />} /> */}
             
             {/* <Route path='/about' element={<><CustomerRegistraionNav/><About/></>}/>

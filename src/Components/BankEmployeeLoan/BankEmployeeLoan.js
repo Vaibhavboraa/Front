@@ -386,6 +386,7 @@ function BankEmployeeLoan() {
     const [message1, setMessage1] = useState('');
     const [loanNotFound, setLoanNotFound] = useState('');
     const [err, setErr] = useState('');
+    const token=sessionStorage.getItem('token');
 
     const handleCancel = () => {
         setLoanData('');
@@ -409,32 +410,47 @@ function BankEmployeeLoan() {
         fetch(`http://localhost:5155/api/BankEmployeeLoan/GetAllLoans`, {
             method: 'GET',
             headers: {
-                'accept': 'application/json'
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
             }
         })
-            .then(response => response.json())
-            .then(data => setAllLoans(data))
-            .catch(error => {
-                console.error('Error fetching all loans:', error);
-            });
+        .then(response => response.json())
+        .then(data => setAllLoans(data))
+        .catch(error => {
+            console.error('Error fetching all loans:', error);
+        });
     };
     
+    
     const reviewLoanApplication = () => {
-        fetch(`http://localhost:5155/api/BankEmployeeLoan/ReviewLoanApplication/${loanId}`)
-            .then(response => response.json())
-            .then(data => {
-                setLoanData(data);
-                setLoanNotFound('');
-            })
-            .catch(error => {
-                console.error('Error reviewing loan application:', error);
-                setLoanData('');
-                setLoanNotFound('Loan Id not found');
-            });
+        fetch(`http://localhost:5155/api/BankEmployeeLoan/ReviewLoanApplication/${loanId}`, {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            setLoanData(data);
+            setLoanNotFound('');
+        })
+        .catch(error => {
+            console.error('Error reviewing loan application:', error);
+            setLoanData('');
+            setLoanNotFound('Loan Id not found');
+        });
     };
+    
 
     const checkCredit = (accountNumber) => {
-        fetch(`http://localhost:5155/api/BankEmployeeLoan/check-credit/${accountNumber}`)
+        fetch(`http://localhost:5155/api/BankEmployeeLoan/check-credit/${accountNumber}`, {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        })
         .then(response => {
             if (response.ok) {
                 return response.json();
@@ -455,7 +471,6 @@ function BankEmployeeLoan() {
         });
     };
     
-
     const makeLoanDecision = () => {
         if (!approved && !rejected) {
             alert('Please approve or reject the loan.');
@@ -464,7 +479,8 @@ function BankEmployeeLoan() {
         fetch(`http://localhost:5155/api/BankEmployeeLoan/MakeLoanDecision/${loanId}?approved=${approved}`, {
             method: 'POST',
             headers: {
-                'accept': 'text/plain'
+                'accept': 'text/plain',
+                'Authorization': 'Bearer ' + token
             }
         })
         .then(response => response.text())
@@ -474,7 +490,7 @@ function BankEmployeeLoan() {
         })
         .catch(error => console.error('Error making loan decision:', error));
     };
-
+    
     const disburseLoan = () => {
         if (loanId === '') {
             setErr('Loan Id is needed');
@@ -484,20 +500,25 @@ function BankEmployeeLoan() {
             setErr('Account Number needed');
             return;
         }
-        fetch(`http://localhost:5155/api/BankEmployeeLoan/ReviewLoanApplication/${loanId}`)
+        fetch(`http://localhost:5155/api/BankEmployeeLoan/ReviewLoanApplication/${loanId}`, {
+            method: 'GET',
+            headers: {
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'Rejected') {
                 setErr('Cannot Disburse Loan: Loan application is rejected');
             } else if (data.status === "Pending") {
                 setErr('Cannot Disburse Loan: Loan application status is pending');
-            }
-            
-            else {
+            } else {
                 fetch(`http://localhost:5155/api/BankEmployeeLoan/disburse-loan/${loanId}/${disburseAccountNumber}`, {
                     method: 'POST',
                     headers: {
-                        'accept': 'text/plain'
+                        'accept': 'text/plain',
+                        'Authorization': 'Bearer ' + token
                     }
                 })
                 .then(response => response.json())
@@ -518,6 +539,7 @@ function BankEmployeeLoan() {
             setErr('Error checking loan status');
         });
     };
+    
 
     return (
         <div className="container">
@@ -593,8 +615,8 @@ function BankEmployeeLoan() {
                                                     <hr />
                                                     {accountCredit[account.accountNumber] && (
                                                         <div>
-                                                            <p>Inbound Amount: {accountCredit[account.accountNumber].inboundAmount}</p>
-                                                            <p>Outbound Amount: {accountCredit[account.accountNumber].outboundAmount}</p>
+                                                            <p>Total Inbound: {accountCredit[account.accountNumber].inboundAmount}</p>
+                                                            <p>Total Outbound: {accountCredit[account.accountNumber].outboundAmount}</p>
                                                             <p>Credit Score: {accountCredit[account.accountNumber].creditScore}</p>
                                                         </div>
                                                     )}

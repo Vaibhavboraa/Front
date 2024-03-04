@@ -1,5 +1,6 @@
 import { useState } from "react";
 import './CustomerRegistration.css';
+import  {useNavigate} from "react-router-dom";
 
 function CustomerRegistration() {
 
@@ -15,11 +16,40 @@ function CustomerRegistration() {
     var [aadharNumber, setAadharNumber] = useState("");
     var [panNumber, setPanNumber] = useState("");
     var [gender, setGender] = useState("");
+  
+    var[err,setErr]=useState("");
+    var[ageError,setAgeError]=useState("");
 
     var[missingFeilds,setMissingFieldsMessage]=useState('');
     const [registrationSuccess, setRegistrationSuccess] = useState('');
+    var navigate=useNavigate();
 
     var customer = {};
+    //
+    const handleDobChange = (e) => {
+        const newDob = e.target.value;
+        setDob(newDob);
+        const birthDate = new Date(newDob);
+        const today = new Date();
+        const calculatedAge = today.getFullYear() - birthDate.getFullYear();
+    
+        if (isNaN(calculatedAge)) {
+            setAge('');
+            setAgeError('');
+            setErr('Date of Birth is required');
+            return;
+        } else {
+            setErr('');
+        }
+    
+        if (calculatedAge <= 12) {
+            setAge(calculatedAge);
+            setAgeError('Age should be greater than 12');
+        } else {
+            setAge(calculatedAge);
+            setAgeError('');
+        }
+    };
     var register = () => {
         customer.email = email;
         customer.password = password;
@@ -78,22 +108,49 @@ function CustomerRegistration() {
         }
         console.log(requestOptions);
         fetch("http://localhost:5155/api/Customer/Register", requestOptions)
-        .then(res => res.json())
+        // .then(res => res.json())
+        // .then(res => {
+        //     console.log(res);
+        //     setRegistrationSuccess('Registration Successful');
+        //     console.log("Registration successful!");
+        // })
+        // .catch(err => {
+        //     console.log(err);
+        //     setRegistrationSuccess('error registering');
+        // });
         .then(res => {
-            console.log(res);
-            setRegistrationSuccess('Registration Successful');
-            console.log("Registration successful!");
-        })
-        .catch(err => {
-            console.log(err);
-            setRegistrationSuccess('error registering');
-        });
-
-
+            if (res.ok) {
+                alert('Registration successful! Please proceed to login.');
+                navigate('/login');
+            } else {
+                alert('Email already exists');
+            }})
     };
+
+
+    
     var changename = (eventargs) => {
         setEmail(eventargs.target.value)
     }
+
+    const resetMessages = () => {
+        setErr("");
+        setAgeError("");
+        setMissingFieldsMessage("");
+        setRegistrationSuccess("");
+      };
+      const resetForm = () => {
+        setEmail("");
+        setPassword("");
+        setName("");
+        setDob("");
+        setAge("");
+        setPhoneNumber("");
+        setAddress("");
+        setAadharNumber("");
+        setPanNumber("");
+        setGender("");
+      };
     return (
         <div>
            
@@ -113,9 +170,10 @@ function CustomerRegistration() {
                                     <label className="form-control">Name</label>
                                     <input className="form-control" type="text" value={name} onChange={(e) => setName(e.target.value)} />
                                     <label className="form-control">DOB</label>
-                                    <input className="form-control" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+                                    <input className="form-control" type="date" value={dob} onChange={handleDobChange} />
                                     <label className="form-control">Age</label>
-                                    <input className="form-control" type="text" value={age} onChange={(e) => setAge(e.target.value)} />
+                                    <input className="form-control" type="text" value={age}  />
+                                    {ageError && <p>{ageError}</p>}
                                     <label className="form-control">Phone</label>
                                     <input className="form-control" type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
                                     <label className="form-control">Address</label>
@@ -144,7 +202,8 @@ function CustomerRegistration() {
                                 </div>
                                     <div className="buttons">
                                         <button onClick={register} className="btn success">Register</button>
-                                        <button className="btn cancel">Cancel</button>
+                                        <button onClick={() => { resetMessages(); resetForm(); }} className="btn cancel">   Cancel </button>
+       
                                       {missingFeilds && <p>{missingFeilds}</p>}
                                         {registrationSuccess && <p>{registrationSuccess} </p>}
                                     </div>

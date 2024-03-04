@@ -1,288 +1,216 @@
 
 
-
 import React, { useState, useEffect } from 'react';
-import '../BankEmployeeTransaction/BankEmployeeTransaction.css';
+import './BankEmployeeTransaction.css';
 
 function BankEmployeeTransaction() {
-    const [accountNumber, setAccountNumber] = useState('');
+    const [customerId, setCustomerId] = useState('');
+    const [allCustomerIds, setAllCustomerIds] = useState([]);
+    const [customerAccounts, setCustomerAccounts] = useState([]);
+    const [selectedAccountNumber, setSelectedAccountNumber] = useState('');
     const [transactions, setTransactions] = useState([]);
-    const [totalInbound, setTotalInbound] = useState(null);
-    const [totalOutbound, setTotalOutbound] = useState(null);
-    const [allTransactions, setAllTransactions] = useState(null);
-    const [message, setMessage] = useState('');
-    const [message1, setMessage1] = useState('');
-    const [message2, setMessage2] = useState('');
-    const [accountNumbersDropdown, setAccountNumbersDropdown] = useState([]);
-
+    const [inboundAmount, setInboundAmount] = useState(null);
+    const [outboundAmount, setOutboundAmount] = useState(null);
+    const [allTransactions, setAllTransactions] = useState([]);
+    const [errMessage, setErrMessage] = useState('');
+    const token = sessionStorage.getItem('token');
     useEffect(() => {
-       
-        fetchAllTransactions();
+        fetchAllCustomers();
     }, []);
 
-    const handleInputChange = (event) => {
-        setAccountNumber(event.target.value);
-    };
-
-    const fetchAllTransactions = () => {
-        fetch(`http://localhost:5155/api/BankEmployeeTransaction/GetAllTransactions`)
+    const fetchAllCustomers = () => {
+        fetch('http://localhost:5155/api/BankEmployeeAccount/GetAllCustomer',{
+            headers:{
+                'Authorization': 'Bearer ' + token
+            }
+        })
             .then(response => response.json())
             .then(data => {
-                setAllTransactions(data);
-
-                
-                const uniqueAccountNumbers = [...new Set(data.map(transaction => transaction.sourceAccountNumber))];
-                setAccountNumbersDropdown(uniqueAccountNumbers);
+                setAllCustomerIds(data.map(customer => customer.customerID));
+                setErrMessage('');
             })
-            .catch(error => console.error('Error fetching all transactions:', error));
+            .catch(error => {
+                console.error('Error fetching customers:', error);
+                setErrMessage('Error fetching customers.');
+            });
+    };
+
+    const handleCustomerIdChange = (event) => {
+        const selectedCustomerId = event.target.value;
+        setCustomerId(selectedCustomerId);
+        setSelectedAccountNumber('');
+        setTransactions([]);
+        setInboundAmount(null);
+        setOutboundAmount(null);
+        setAllTransactions([]);
+
+        if (selectedCustomerId) {
+            fetchAccountDetails(selectedCustomerId);
+        } else {
+            setCustomerAccounts([]);
+        }
+    };
+
+    const fetchAccountDetails = (customerId) => {
+        fetch(`http://localhost:5155/api/CustomerAccount/GetAccountDetailsByCustomerId?customerId=${customerId}`
+        )
+            .then(response => response.json())
+            .then(data => {
+                setCustomerAccounts(data);
+                setErrMessage('');
+            })
+            .catch(error => {
+                console.error('Error fetching accounts:', error);
+                setCustomerAccounts([]);
+                setErrMessage('No transactions Found.');
+            });
+    };
+
+    const handleAccountNumberChange = (event) => {
+        const selectedAccountNumber = event.target.value;
+        setSelectedAccountNumber(selectedAccountNumber);
     };
 
     const fetchTransactions = () => {
-        if (accountNumber === '') {
-            setMessage('Account Number cannot be empty');
+        if (!selectedAccountNumber) {
+            setErrMessage('Please select an account number.');
             return;
         }
 
-        fetch(`http://localhost:5155/api/BankEmployeeTransaction/GetTransactionByAccountNumber?accountNumber=${accountNumber}`)
+        fetch(`http://localhost:5155/api/BankEmployeeTransaction/GetTransactionByAccountNumber?accountNumber=${selectedAccountNumber}`,{
+            headers:{
+                'Authorization': 'Bearer ' + token
+            }
+        })
             .then(response => response.json())
             .then(data => {
                 setTransactions(data);
-                setMessage('');
+                setErrMessage('');
             })
             .catch(error => {
                 console.error('Error fetching transactions:', error);
                 setTransactions([]);
-                setMessage('No transactions found for account number');
+                setErrMessage('No transactions Found');
             });
     };
 
-    const fetchTotalInbound = () => {
-        if (accountNumber === '') {
-            setMessage1('Account Number cannot be empty');
+    const fetchInboundAmount = () => {
+        if (!selectedAccountNumber) {
+            setErrMessage('Please select an account number.');
             return;
         }
 
-        fetch(`http://localhost:5155/api/BankEmployeeTransaction/TotalInbound?accountNumber=${accountNumber}`)
+        fetch(`http://localhost:5155/api/BankEmployeeTransaction/TotalInbound?accountNumber=${selectedAccountNumber}`,{
+            headers:{
+                'Authorization': 'Bearer ' + token
+            }
+        })
             .then(response => response.text())
-            .then(data => setTotalInbound(data))
-            .catch(error => console.error('Error fetching total inbound amount:', error));
+            .then(data => {
+                setInboundAmount(data);
+                setErrMessage('');
+            })
+            .catch(error => {
+                console.error('Error fetching total inbound amount:', error);
+                setInboundAmount(null);
+                setErrMessage('Error fetching total inbound amount.');
+            });
     };
 
-    const fetchTotalOutbound = () => {
-        if (accountNumber === '') {
-            setMessage2('Account Number cannot be empty');
+    const fetchOutboundAmount = () => {
+        if (!selectedAccountNumber) {
+            setErrMessage('Please select an account number.');
             return;
         }
 
-        fetch(`http://localhost:5155/api/BankEmployeeTransaction/TotalOutbound?accountNumber=${accountNumber}`)
+        fetch(`http://localhost:5155/api/BankEmployeeTransaction/TotalOutbound?accountNumber=${selectedAccountNumber}`,{
+            headers:{
+                'Authorization': 'Bearer ' + token
+            }
+        })
             .then(response => response.text())
-            .then(data => setTotalOutbound(data))
-            .catch(error => console.error('Error fetching total outbound amount:', error));
+            .then(data => {
+                setOutboundAmount(data);
+                setErrMessage('');
+            })
+            .catch(error => {
+                console.error('Error fetching total outbound amount:', error);
+                setOutboundAmount(null);
+                setErrMessage('Error fetching total outbound amount.');
+            });
     };
 
-    const handleCancel = () => {
-        setAccountNumber('');
-        setTransactions([]);
-        setTotalInbound(null);
-        setTotalOutbound(null);
-        setAllTransactions([]);
-        setMessage('');
-        setMessage1('');
-        setMessage2('');
+    const fetchAllTransactions = () => {
+        if (!selectedAccountNumber) {
+            setErrMessage('Please select an account number.');
+            return;
+        }
+
+        fetch(`http://localhost:5155/api/BankEmployeeTransaction/GetAllTransactions?accountNumber=${selectedAccountNumber}`,{
+            headers:{
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                setAllTransactions(data);
+                setErrMessage('');
+            })
+            .catch(error => {
+                console.error('Error fetching all transactions:', error);
+                setAllTransactions([]);
+                setErrMessage('Error fetching all transactions.');
+            });
     };
 
     return (
         <div className="container">
             <div className="row">
                 <div className="col">
-                    <div className="card kk mt-4  ">
+                    <div className="card mt-4">
                         <div className="card-body">
-                            <h2 className='card-title'>Transaction Details</h2>
-                            <label htmlFor="accountNumber">Account Number:</label>
+                            <h2 className='card-title'>Customer and Account Selection</h2>
+                            <label htmlFor="customerId">Select Customer:</label>
+                            <select
+                                id="customerId"
+                                className="form-control"
+                                value={customerId}
+                                onChange={handleCustomerIdChange}
+                            >
+                                <option value="">Select Customer</option>
+                                {allCustomerIds.map(id => (
+                                    <option key={id} value={id}>{id}</option>
+                                ))}
+                            </select>
+                            <label htmlFor="accountNumber">Select Account Number:</label>
                             <select
                                 id="accountNumber"
                                 className="form-control"
-                                value={accountNumber}
-                                onChange={handleInputChange}
+                                value={selectedAccountNumber}
+                                onChange={handleAccountNumberChange}
                             >
                                 <option value="">Select Account Number</option>
-                                {accountNumbersDropdown.map(account => (
-                                    <option key={account} value={account}>
-                                        {account}
-                                    </option>
+                                {customerAccounts.map(account => (
+                                    <option key={account.accountNumber} value={account.accountNumber}>{account.accountNumber}</option>
                                 ))}
                             </select>
-                            <div>
-                            <button
-                                onClick={fetchTransactions}
-                                className="btn xt mt-2 card-title"
-                                style={{
-                                    fontSize: '16px',
-                                    padding: '3px 8px',
-                                    marginRight: '10px'
-                                }}
-                            >
-                                Fetch Transactions
-                            </button>
-                          
-                            <button
-                            onClick={handleCancel}
-                            className="btn cancel card-title"
-                            style={{
-                                fontSize: '16px',
-                                padding: '3px 18px',
-                                marginTop: '10px',
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <div className="card mt-4">
+                        <div className="card-body">
+                            <h2 className='card-title'>Fetch Transactions</h2>
+                            <button onClick={fetchTransactions} className="btn  card-title"
+                             style={{
+                                fontSize: '18px',
+                                padding: '3px 8px',
                             }}
-                        >
-                            Cancel
-                        </button>
-                        </div>
-                        {message && <p>{message}</p>}
-
-                            <div>
-                                {transactions && transactions.map && transactions.map(transaction => (
-                                    <div key={transaction.transactionID}>
-                                        <p>Transaction ID: {transaction.transactionID}</p>
-                                        <p>Amount: {transaction.amount}</p>
-                                        <p>Date: {transaction.transactionDate}</p>
-                                        <p>Description: {transaction.description}</p>
-                                        <p>Type: {transaction.transactionType}</p>
-                                        <p>Status: {transaction.status}</p>
-                                        <p>Source Account: {transaction.sourceAccountNumber}</p>
-                                        <p>Destination Account: {transaction.destinationAccountNumber}</p>
-                                        <hr />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                       
-                    </div>
-                </div>
-            </div>
-
-            <div className="row mt-3">
-                <div className="col">
-                    <div className="card mt-4">
-                        <div className="card-body">
-                            <h2 className='card-title'>Total Inbound Amount</h2>
-                            <label htmlFor="accountNumberTotal">Account Number:</label>
-                            <input
-                                type="text"
-                                id="accountNumberTotal"
-                                className="form-control"
-                                value={accountNumber}
-                                onChange={handleInputChange}
-                            />
-                            <div>
-                            <button
-                                onClick={fetchTotalInbound}
-                                className="btn xt mt-2 card-title"
-                                style={{
-                                    fontSize: '16px',
-                                    padding: '3px 8px',
-                                    marginRight: '10px'
-                                }}
-                            >
-                                Fetch Total Inbound Amount
-                            </button>
-
-                          
-                           
-                            <button
-                                onClick={handleCancel}
-                                className="btn cancel card-title"
-                                style={{
-                                    fontSize: '16px',
-                                    padding: '3px 18px',
-                                    marginTop: '10px',
-                                }}
-                            >
-                                Cancel
-                            </button>
-                            </div>
-                            {totalInbound && <p>Total Inbound Amount: {totalInbound}</p>}
-                            {message1 && <p>{message1}</p>}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="row mt-3">
-                <div className="col">
-                    <div className="card mt-4">
-                        <div className="card-body">
-                            <h2 className='card-title'>Total Outbound Amount</h2>
-                            <label htmlFor="accountNumberOutbound">Account Number:</label>
-                            <input
-                                type="text"
-                                id="accountNumberOutbound"
-                                className="form-control"
-                                value={accountNumber}
-                                onChange={handleInputChange}
-                            />
-                            <div>
-                            <button
-                                onClick={fetchTotalOutbound}
-                                className="btn xt mt-2 card-title"
-                                style={{
-                                    fontSize: '16px',
-                                    padding: '3px 8px',
-                                    marginRight: '10px'
-                                }}
-                            >
-                                Fetch Total Outbound Amount
-                            </button>
-                          
-                          
-                            <button
-                                onClick={handleCancel}
-                                className="btn cancel card-title"
-                                style={{
-                                    fontSize: '16px',
-                                    padding: '3px 18px',
-                                    marginTop: '10px',
-                                }}
-                            >
-                                Cancel
-                            </button>
-                            </div>
-                            {totalOutbound && <p>Total Outbound Amount: {totalOutbound}</p>}
-                            {message2 && <p>{message2}</p>}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="row mt-3">
-                <div className="col">
-                    <div className="card mt-4">
-                        <div className="card-body">
-                            <h2 className='card-title'>All Transactions</h2>
-                            <div>
-                            <button
-                                onClick={fetchAllTransactions}
-                                className="btn xt card-title"
-                                style={{
-                                    fontSize: '16px',
-                                    padding: '3px 8px',
-                                    marginRight: '10px',
-
-                                }}
-                            >
-                                Fetch All Transactions
-                            </button>
-                            <button
-                                onClick={handleCancel}
-                                className="btn cancel card-title"
-                                style={{
-                                    fontSize: '16px',
-                                    padding: '3px 18px',
-                                }}
-                            >
-                                Cancel
-                            </button>
-                            </div>
-                            {allTransactions && allTransactions.map(transaction => (
+                            >Fetch Transactions</button>
+                            {errMessage && <p className="error-message">{errMessage}</p>}
+                            {transactions && transactions.map(transaction => (
                                 <div key={transaction.transactionID}>
                                     <p>Transaction ID: {transaction.transactionID}</p>
                                     <p>Amount: {transaction.amount}</p>
@@ -299,20 +227,71 @@ function BankEmployeeTransaction() {
                     </div>
                 </div>
             </div>
+            <div className="row">
+                <div className="col">
+                    <div className="card mt-4">
+                        <div className="card-body">
+                            <h2 className='card-title'>Fetch Inbound Amount</h2>
+                            <button onClick={fetchInboundAmount} className="btn card-title"
+                             style={{
+                                fontSize: '18px',
+                                padding: '3px 8px',
+                            }}
+                            >Fetch Inbound Amount</button>
+                            {inboundAmount && <p>Total Inbound Amount: {inboundAmount}</p>}
+                            {errMessage && <p className="error-message">{errMessage}</p>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <div className="card mt-4">
+                        <div className="card-body">
+                            <h2 className='card-title'>Fetch Outbound Amount</h2>
+                            <button onClick={fetchOutboundAmount} className="btn card-title"
+                             style={{
+                                fontSize: '18px',
+                                padding: '3px 8px',
+                            }}
+                            >Fetch Outbound Amount</button>
+                            {outboundAmount && <p>Total Outbound Amount: {outboundAmount}</p>}
+                            {errMessage && <p className="error-message">{errMessage}</p>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="row">
+                <div className="col">
+                    <div className="card mt-4">
+                        <div className="card-body">
+                            <h2 className='card-title'>Fetch All Transactions</h2>
+                            <button onClick={fetchAllTransactions} className="btn card-title"
+                             style={{
+                                fontSize: '18px',
+                                padding: '3px 8px',
+                            }}
+                            >Fetch All Transactions</button>
+                            {allTransactions && allTransactions.map(transaction => (
+                                <div key={transaction.transactionID}>
+                                    <p>Transaction ID: {transaction.transactionID}</p>
+                                    <p>Amount: {transaction.amount}</p>
+                                    <p>Date: {transaction.transactionDate}</p>
+                                    <p>Description: {transaction.description}</p>
+                                    <p>Type: {transaction.transactionType}</p>
+                                    <p>Status: {transaction.status}</p>
+                                    <p>Source Account: {transaction.sourceAccountNumber}</p>
+                                    <p>Destination Account: {transaction.destinationAccountNumber}</p>
+                                    <hr />
+                                </div>
+                            ))}
+                            {errMessage && <p className="error-message">{errMessage}</p>}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
 
 export default BankEmployeeTransaction;
-
-
-
-
-
-
-
-
-
-
-
-

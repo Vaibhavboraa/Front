@@ -21,43 +21,49 @@ function AdminBankEmployeeManagement() {
     const [message3, setMessage3] = useState('');
     const [message4, setMessage4] = useState('');
     const [employeeIds, setEmployeeIds] = useState([]);
+    const token=sessionStorage.getItem('token');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+
 
     useEffect(() => {
         fetch('http://localhost:5155/api/AdminBankEmployees/GetAllEmployees', {
             method: 'GET',
             headers: {
-                'accept': 'application/json'
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Fetched Employees:', data);
-                setEmployees(data);
-
-
-                const employeeIds = data.map(employee => employee.employeeID);
-                setEmployeeIds(employeeIds);
-            })
-            .catch(error => {
-                console.error('Error fetching employees:', error);
-            });
-    }, []);
-
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetched Employees:', data);
+            setEmployees(data);
+    
+            const employeeIds = data.map(employee => employee.employeeID);
+            setEmployeeIds(employeeIds);
+        })
+        .catch(error => {
+            console.error('Error fetching employees:', error);
+        });
+    }, [token]);  
+    
     useEffect(() => {
         fetch('http://localhost:5155/api/AdminBankEmployees/GetAllEmployees', {
             method: 'GET',
             headers: {
-                'accept': 'application/json'
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                setEmployees(data);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-    }, []);
+        .then(response => response.json())
+        .then(data => {
+            setEmployees(data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }, [token]);  
+    
 
     const handleShowData = () => {
         setShowData(true);
@@ -72,11 +78,12 @@ function AdminBankEmployeeManagement() {
             setMessage('Please select an employee ID');
             return;
         }
-
+    
         fetch(`http://localhost:5155/api/AdminBankEmployees/get employee by id?employeeId=${employeeIdInput}`, {
             method: 'GET',
             headers: {
-                'accept': 'application/json'
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
             }
         })
             .then(response => {
@@ -96,24 +103,25 @@ function AdminBankEmployeeManagement() {
                 setMessage('Employee Not Found');
             });
     };
-
+    
     const handleDeactivateEmployee = () => {
         if (employeeIdInput === '') {
             setMessage1('Employee ID cannot be empty');
             return;
         }
-
+    
         const confirmed = window.confirm('Are you sure you want to deactivate this employee?');
-
+    
         if (!confirmed) {
             setMessage1('Deactivation canceled by user');
             return;
         }
-
+    
         fetch(`http://localhost:5155/api/AdminBankEmployees/Deactivate Employee?employeeId=${employeeIdInput}`, {
             method: 'POST',
             headers: {
-                'accept': 'application/json'
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
             }
         })
             .then(response => {
@@ -131,24 +139,25 @@ function AdminBankEmployeeManagement() {
                 setMessage1('Employee with the given ID not found');
             });
     };
-
+    
     const handleActivateEmployee = () => {
         if (employeeIdInput === '') {
             setMessage2('Employee ID cannot be empty');
             return;
         }
-
+    
         const confirmed = window.confirm('Are you sure you want to activate this employee?');
-
+    
         if (!confirmed) {
             setMessage2('Activation canceled by user');
             return;
         }
-
+    
         fetch(`http://localhost:5155/api/AdminBankEmployees/Activate Employee?employeeId=${employeeIdInput}`, {
             method: 'POST',
             headers: {
-                'accept': 'application/json'
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
             }
         })
             .then(response => {
@@ -166,6 +175,7 @@ function AdminBankEmployeeManagement() {
                 setMessage2('Employee with the given ID not found');
             });
     };
+    
 
     const handleInputChange = (event) => {
         setEmployeeIdInput(event.target.value);
@@ -179,55 +189,71 @@ function AdminBankEmployeeManagement() {
         });
     };
 
+    useEffect(() => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (registrationData.email && !emailRegex.test(registrationData.email)) {
+            setEmailError('Please enter a valid email address');
+        } else {
+            setEmailError('');
+        }
+    }, [registrationData.email]);
+
+   
+    useEffect(() => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (registrationData.password && !passwordRegex.test(registrationData.password)) {
+            setPasswordError('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character');
+        } else {
+            setPasswordError('');
+        }
+    }, [registrationData.password]);
+
     const handleRegisterEmployee = () => {
         const requiredFields = ['email', 'password', 'name', 'position', 'phone'];
         const missingFields = requiredFields.filter(field => !registrationData[field]);
-
+    
         if (missingFields.length > 0) {
             setMessage4(`Please fill in the following fields: ${missingFields.join(', ')}`);
             return;
         }
-
+      
+    
         fetch('http://localhost:5155/api/AdminBankEmployees/Register Bank Employee', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify(registrationData)
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
+        .then(response => {
+            if (response.ok) {
+                setMessage4("Employee Registered Successfully !");
+                alert('Customer registered successfully');
+            } else {
+               
+                alert("Email already exists !");
+            }
             })
-            .then(data => {
-                setRegistrationResponse(data);
-                console.log('Registration Response:', data);
-                setMessage4('Employee Registered Successfully');
-            })
-            .catch(error => {
-                console.error('Error registering employee:', error);
-                setMessage4('Error Registering Employee');
-            });
     };
-
+    
     const handleUpdateEmployee = () => {
         const requiredFields = ['position', 'phone'];
-
+    
         const missingFields = requiredFields.filter(field => !registrationData[field]);
-
+    
         if (missingFields.length > 0) {
             setMessage3(`Please fill in the following fields: ${missingFields.join(', ')}`);
             return;
         }
-
+    
         fetch(`http://localhost:5155/api/AdminBankEmployees/Update Bank Employee?employeeId=${employeeIdInput}`, {
             method: 'PUT',
             headers: {
                 'accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
             },
             body: JSON.stringify({
                 position: registrationData.position,
@@ -242,7 +268,7 @@ function AdminBankEmployeeManagement() {
             })
             .then(data => {
                 console.log('Update Response:', data);
-
+    
                 if (data && data.employeeID) {
                     handleGetEmployeeById();
                     setMessage3('Employee Updated');
@@ -255,6 +281,7 @@ function AdminBankEmployeeManagement() {
                 setMessage3('Error Updating Employee');
             });
     };
+    
 
     return (
         <div className="container">
@@ -297,6 +324,7 @@ function AdminBankEmployeeManagement() {
                                                 <p>Email: {employee.email}</p>
                                                 <p>Position: {employee.position}</p>
                                                 <p>Phone: {employee.phone}</p>
+                                                <hr />
                                             </li>
                                         ))}
                                     </ul>
@@ -399,10 +427,12 @@ function AdminBankEmployeeManagement() {
                             <div>
                                 <label>Email address</label>
                                 <input type="email" className="form-control" placeholder="Enter email" name="email" value={registrationData.email} onChange={handleRegistrationInputChange} />
+                                {emailError && <div style={{ color: 'red', marginTop: '5px' }}>{emailError}</div>}
                             </div>
                             <div>
                                 <label>Password</label>
                                 <input type="password" className="form-control" placeholder="Password" name="password" value={registrationData.password} onChange={handleRegistrationInputChange} />
+                                {passwordError && <div style={{ color: 'red', marginTop: '5px' }}>{passwordError}</div>}
                             </div>
                             <div>
                                 <label>Name</label>

@@ -24,7 +24,9 @@ function CustomerAccount() {
         fetch(`http://localhost:5155/api/CustomerAccount/GetAccountDetailsByCustomerId?customerId=${customerId}`, {
             method: 'GET',
             headers: {
-                'accept': 'application/json'
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+
             }
         })
         .then(response => {
